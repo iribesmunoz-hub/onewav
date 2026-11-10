@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Escucha única</title>
+<style>
+:root{--bg:#121212;--panel:#181818;--card:#242424;--txt:#fff;--mut:#b3b3b3;--g:#1ed760;--red:#f15e6c}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(#2a2a2a,var(--bg) 340px) no-repeat var(--bg);color:var(--txt);font-family:"Segoe UI",system-ui,-apple-system,sans-serif;min-height:100vh}
+main{max-width:760px;margin:0 auto;padding:28px 18px 60px}
+h1{font-size:2rem;margin:0 0 4px}h2{font-size:1.2rem;margin:28px 0 12px}
+.mut{color:var(--mut)}.small{font-size:.85rem}
+.box{background:var(--panel);border-radius:10px;padding:20px;margin-bottom:16px}
+label{display:block;font-size:.85rem;color:var(--mut);margin:12px 0 4px}
+input,textarea{width:100%;background:var(--card);border:1px solid #3a3a3a;border-radius:6px;color:var(--txt);padding:11px;font:inherit}
+input:focus,textarea:focus,button:focus-visible{outline:2px solid var(--g);outline-offset:1px}
+input[type=file]{padding:8px}
+button{background:var(--g);color:#000;border:0;border-radius:999px;padding:11px 26px;font-weight:700;font-size:1rem;cursor:pointer}
+button:hover{transform:scale(1.03)}button.sec{background:transparent;color:var(--txt);border:1px solid #777}
+button.sm{padding:6px 14px;font-size:.8rem}button:disabled{opacity:.5;cursor:default;transform:none}
+.row{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.track{display:flex;gap:16px;margin-bottom:14px}
+.track img,.ph{width:96px;height:96px;border-radius:6px;object-fit:cover;background:var(--card);flex:none}
+.link{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-top:1px solid #2c2c2c}
+.tag{font-size:.8rem;padding:3px 10px;border-radius:999px;background:#1ed76022;color:var(--g)}
+.tag.u{background:#ffffff14;color:var(--mut)}
+.cm{background:var(--card);border-radius:8px;padding:10px 12px;margin-top:8px;font-size:.92rem}
+.player{text-align:center;padding-top:20px}
+.cover{width:min(300px,80vw);aspect-ratio:1;border-radius:8px;object-fit:cover;background:var(--card);box-shadow:0 12px 40px #000a}
+.player h1{margin-top:22px}
+.bar{height:6px;background:#4d4d4d;border-radius:3px;margin:22px auto 6px;max-width:420px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--g)}
+.time{display:flex;justify-content:space-between;max-width:420px;margin:0 auto;font-size:.8rem;color:var(--mut)}
+.play{width:68px;height:68px;padding:0;font-size:1.6rem;margin-top:18px}
+.modal{position:fixed;inset:0;background:#000b;display:flex;align-items:center;justify-content:center;padding:18px}
+.modal .box{max-width:440px;width:100%;margin:0}
+.err{color:var(--red)}[hidden]{display:none!important}
+@media(prefers-reduced-motion:reduce){button:hover{transform:none}}
+</style>
+</head>
+<body>
+<main id="app"></main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+// ====== PEGA AQUÍ TUS DOS DATOS DE SUPABASE ======
+const SUPABASE_URL = "https://waalzfabimccpdbzxpyy.supabase.co";
+const SUPABASE_KEY = "sb_secret_J9F5F7dv_s99aQlRMclg9g_kDM4fu4I";
+// ==================================================
+
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const $ = s => document.querySelector(s);
+const app = $("#app");
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pub = p => p ? sb.storage.from("media").getPublicUrl(p).data.publicUrl : "";
+const fmt = s => isFinite(s) ? Math.floor(s/60) + ":" + String(Math.floor(s%60)).padStart(2,"0") : "0:00";
+const token = new URLSearchParams(location.search).get("l");
+
+token ? listener() : admin();
+
+/* ================= PÁGINA DEL OYENTE ================= */
+async function listener() {
+  const { data: info } = await sb.rpc("link_info", { t: token });
+  if (!info) return app.innerHTML = `<div class="player"><h1>Enlace no válido</h1><p class="mut">Comprueba que el enlace está completo.</p></div>`;
+  if (info.used) return app.innerHTML = `<div class="player"><h1>Este enlace ya se ha utilizado</h1><p class="mut">Cada enlace se puede escuchar una sola vez.</p></div>`;
+  app.innerHTML = `<div class="player">
+    <img class="cover" src="${esc(pub(info.cover))}" alt="" onerror="this.style.visibility='hidden'">
+    <h1>${esc(info.title)}</h1><p class="mut">${esc(info.artist)}</p>
+    <div id="start" class="box" style="max-width:420px;margin:24px auto">
+      <label for="nm" style="margin-top:0;text-align:left">Tu nombre</label>
+      <input id="nm" maxlength="60" placeholder="¿Cómo te llamas?">
+      <p class="mut small" style="text-align:left">Solo podrás escuchar la canción una vez. Al pulsar Reproducir, el enlace caduca.</p>
+      <button id="go">Reproducir</button><p id="msg" class="err small"></p>
+    </div>
+    <div id="pl" hidden>
+      <div class="bar"><i id="fill"></i></div>
+      <div class="time"><span id="cur">0:00</span><span id="dur">0:00</span></div>
+      <button id="pp" class="play" aria-label="Pausar">❚❚</button>
+    </div></div>`;
+  $("#go").onclick = async () => {
+    const name = $("#nm").value.trim();
+    if (!name) return $("#msg").textContent = "Escribe tu nombre para continuar.";
+    $("#go").disabled = true;
+    const { data, error } = await sb.rpc("claim_link", { t: token, n: name });
+    if (error || !data) { $("#msg").textContent = "Este enlace ya no está disponible."; return; }
+    $("#start").hidden = true; $("#pl").hidden = false;
+    const a = new Audio(pub(data.audio));
+    a.ontimeupdate = () => { $("#fill").style.width = (a.currentTime / a.duration * 100 || 0) + "%"; $("#cur").textContent = fmt(a.currentTime); };
+    a.onloadedmetadata = () => $("#dur").textContent = fmt(a.duration);
+    a.onplay = () => { $("#pp").textContent = "❚❚"; $("#pp").setAttribute("aria-label","Pausar"); };
+    a.onpause = () => { $("#pp").textContent = "▶"; $("#pp").setAttribute("aria-label","Reproducir"); };
+    $("#pp").onclick = () => a.paused ? a.play() : a.pause();
+    a.onended = () => feedback();
+    a.play().catch(() => { $("#pp").textContent = "▶"; });
+  };
+}
+function feedback() {
+  app.insertAdjacentHTML("beforeend", `<div class="modal" role="dialog" aria-modal="true"><div class="box">
+    <h2 style="margin-top:0">¿Qué te ha parecido?</h2>
+    <textarea id="cm" rows="4" maxlength="1000" placeholder="Escribe tu comentario sobre la canción"></textarea>
+    <div class="row" style="margin-top:14px"><button id="send">Enviar comentario</button><button id="skip" class="sec">Ahora no</button></div></div></div>`);
+  const done = t => { $(".modal").remove(); app.innerHTML = `<div class="player"><h1>${t}</h1><p class="mut">Este enlace ya ha caducado. Puedes cerrar la página.</p></div>`; };
+  $("#skip").onclick = () => done("Gracias por escuchar");
+  $("#send").onclick = async () => {
+    const b = $("#cm").value.trim(); if (!b) return done("Gracias por escuchar");
+    $("#send").disabled = true;
+    await sb.rpc("add_comment", { t: token, b });
+    done("Gracias por tu comentario");
+  };
+}
+
+/* ================= PANEL DE ADMINISTRADOR ================= */
+async function admin() {
+  const { data: { session } } = await sb.auth.getSession();
+  session ? panel() : login();
+}
+function login() {
+  app.innerHTML = `<h1>Escucha única</h1><p class="mut">Acceso del administrador</p>
+  <div class="box" style="max-width:380px"><label for="em">Correo</label><input id="em" type="email">
+  <label for="pw">Contraseña</label><input id="pw" type="password">
+  <p id="msg" class="err small"></p><button id="in">Entrar</button></div>`;
+  $("#in").onclick = async () => {
+    const { error } = await sb.auth.signInWithPassword({ email: $("#em").value.trim(), password: $("#pw").value });
+    error ? $("#msg").textContent = "Correo o contraseña incorrectos." : panel();
+  };
+}
+async function panel() {
+  app.innerHTML = `<div class="row" style="justify-content:space-between"><h1>Mis canciones</h1><button class="sec sm" id="out">Salir</button></div>
+  <div class="box"><h2 style="margin-top:0">Nueva canción</h2>
+    <label for="ti">Título</label><input id="ti">
+    <label for="ar">Artista</label><input id="ar">
+    <label for="au">Audio (MP3, WAV… máximo 50 MB)</label><input id="au" type="file" accept="audio/*">
+    <label for="co">Portada (imagen)</label><input id="co" type="file" accept="image/*">
+    <label for="nl">Cuántos enlaces quieres crear</label><input id="nl" type="number" min="1" max="50" value="3">
+    <p id="msg" class="small"></p><button id="mk">Crear canción y enlaces</button></div>
+  <div id="list"></div>`;
+  $("#out").onclick = async () => { await sb.auth.signOut(); login(); };
+  $("#mk").onclick = create;
+  load();
+}
+async function upload(file) {
+  const ext = (file.name.split(".").pop() || "bin").toLowerCase();
+  const path = crypto.randomUUID() + "." + ext;
+  const { error } = await sb.storage.from("media").upload(path, file, { contentType: file.type });
+  if (error) throw error;
+  return path;
+}
+async function create() {
+  const m = $("#msg"), au = $("#au").files[0], co = $("#co").files[0], n = Math.min(50, Math.max(1, +$("#nl").value || 1));
+  if (!$("#ti").value.trim() || !au) { m.className = "small err"; return m.textContent = "Falta el título o el archivo de audio."; }
+  if (au.size > 50 * 1024 * 1024) { m.className = "small err"; return m.textContent = "El audio supera los 50 MB."; }
+  $("#mk").disabled = true; m.className = "small mut"; m.textContent = "Subiendo archivos…";
+  try {
+    const audio_path = await upload(au), cover_path = co ? await upload(co) : null;
+    const { data: t, error } = await sb.from("tracks").insert({ title: $("#ti").value.trim(), artist: $("#ar").value.trim(), audio_path, cover_path }).select().single();
+    if (error) throw error;
+    await sb.from("links").insert(Array.from({ length: n }, () => ({ track_id: t.id })));
+    m.textContent = "¡Listo!"; ["ti","ar","au","co"].forEach(i => $("#"+i).value = ""); load();
+  } catch (e) { m.className = "small err"; m.textContent = "Error: " + (e.message || e); }
+  $("#mk").disabled = false;
+}
+async function load() {
+  const [{ data: tr }, { data: lk }, { data: cm }] = await Promise.all([
+    sb.from("tracks").select("*").order("created_at", { ascending: false }),
+    sb.from("links").select("*").order("created_at"),
+    sb.from("comments").select("*").order("created_at")]);
+  const base = location.origin + location.pathname;
+  $("#list").innerHTML = (tr || []).map(t => `<div class="box"><div class="track">
+    ${t.cover_path ? `<img src="${esc(pub(t.cover_path))}" alt="">` : `<div class="ph"></div>`}
+    <div><strong>${esc(t.title)}</strong><div class="mut">${esc(t.artist)}</div>
+    <button class="sec sm" style="margin-top:10px" data-add="${t.id}">+ Añadir enlace</button></div></div>
+    ${(lk || []).filter(l => l.track_id === t.id).map(l => `<div><div class="link">
+      <span>${l.used_at ? `<span class="tag u">Usado por ${esc(l.listener)}</span>` : `<span class="tag">Disponible</span>`}</span>
+      <button class="sm sec" data-copy="${base}?l=${l.token}">Copiar enlace</button></div>
+      ${(cm || []).filter(c => c.token === l.token).map(c => `<div class="cm"><b>${esc(c.listener)}:</b> ${esc(c.body)}</div>`).join("")}</div>`).join("")}
+    </div>`).join("") || `<p class="mut">Aún no has subido ninguna canción.</p>`;
+  document.querySelectorAll("[data-copy]").forEach(b => b.onclick = async () => {
+    await navigator.clipboard.writeText(b.dataset.copy); b.textContent = "¡Copiado!"; setTimeout(() => b.textContent = "Copiar enlace", 1500); });
+  document.querySelectorAll("[data-add]").forEach(b => b.onclick = async () => { await sb.from("links").insert({ track_id: b.dataset.add }); load(); });
+}
+</script>
+</body>
+</html>
