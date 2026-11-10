@@ -5,38 +5,42 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Escucha única</title>
 <style>
-:root{--bg:#121212;--panel:#181818;--card:#242424;--txt:#fff;--mut:#b3b3b3;--g:#1ed760;--red:#f15e6c}
+:root{--bg:#121212;--panel:#181818;--card:#242424;--txt:#fff;--mut:#b3b3b3;--g:#1ed760;--red:#f15e6c;--bg2:#2a2a2a;--gt:#000;--rc:8%;--rb:999px;--rbox:10px;--barh:6px;--font:"Segoe UI",system-ui,-apple-system,sans-serif}
 *{box-sizing:border-box}
-body{margin:0;background:linear-gradient(#2a2a2a,var(--bg) 340px) no-repeat var(--bg);color:var(--txt);font-family:"Segoe UI",system-ui,-apple-system,sans-serif;min-height:100vh}
+body{margin:0;background:linear-gradient(var(--bg2),var(--bg) 340px) no-repeat var(--bg);color:var(--txt);font-family:var(--font);min-height:100vh}
 main{max-width:760px;margin:0 auto;padding:28px 18px 60px}
 h1{font-size:2rem;margin:0 0 4px}h2{font-size:1.2rem;margin:28px 0 12px}
 .mut{color:var(--mut)}.small{font-size:.85rem}
-.box{background:var(--panel);border-radius:10px;padding:20px;margin-bottom:16px}
+.box{background:var(--panel);border-radius:var(--rbox);padding:20px;margin-bottom:16px}
 label{display:block;font-size:.85rem;color:var(--mut);margin:12px 0 4px}
-input,textarea{width:100%;background:var(--card);border:1px solid #3a3a3a;border-radius:6px;color:var(--txt);padding:11px;font:inherit}
+input,textarea,select{width:100%;background:var(--card);border:1px solid color-mix(in srgb,var(--txt) 20%,transparent);border-radius:6px;color:var(--txt);padding:11px;font:inherit}
 input:focus,textarea:focus,button:focus-visible{outline:2px solid var(--g);outline-offset:1px}
 input[type=file]{padding:8px}
-button{background:var(--g);color:#000;border:0;border-radius:999px;padding:11px 26px;font-weight:700;font-size:1rem;cursor:pointer}
-button:hover{transform:scale(1.03)}button.sec{background:transparent;color:var(--txt);border:1px solid #777}
+button{background:var(--g);color:var(--gt);border:0;border-radius:var(--rb);padding:11px 26px;font-weight:700;font-size:1rem;cursor:pointer}
+button:hover{transform:scale(1.03)}button.sec{background:transparent;color:var(--txt);border:1px solid var(--mut)}
 button.sm{padding:6px 14px;font-size:.8rem}button:disabled{opacity:.5;cursor:default;transform:none}
 .row{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
 .track{display:flex;gap:16px;margin-bottom:14px}
 .track img,.ph{width:96px;height:96px;border-radius:6px;object-fit:cover;background:var(--card);flex:none}
-.link{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-top:1px solid #2c2c2c}
-.tag{font-size:.8rem;padding:3px 10px;border-radius:999px;background:#1ed76022;color:var(--g)}
-.tag.u{background:#ffffff14;color:var(--mut)}
+.link{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-top:1px solid color-mix(in srgb,var(--txt) 12%,transparent)}
+.tag{font-size:.8rem;padding:3px 10px;border-radius:999px;background:color-mix(in srgb,var(--g) 15%,transparent);color:var(--g)}
+.tag.u{background:color-mix(in srgb,var(--txt) 10%,transparent);color:var(--mut)}
 .cm{background:var(--card);border-radius:8px;padding:10px 12px;margin-top:8px;font-size:.92rem}
 .player{text-align:center;padding-top:20px}
-.cover{width:min(300px,80vw);aspect-ratio:1;border-radius:8px;object-fit:cover;background:var(--card);box-shadow:0 12px 40px #000a}
+.cover{width:min(300px,80vw);aspect-ratio:1;border-radius:var(--rc);object-fit:cover;background:var(--card);box-shadow:0 12px 40px #000a}
 .player h1{margin-top:22px}
-.bar{height:6px;background:#4d4d4d;border-radius:3px;margin:22px auto 6px;max-width:420px;overflow:hidden}
+.bar{height:var(--barh);background:color-mix(in srgb,var(--txt) 22%,transparent);border-radius:min(var(--rb),calc(var(--barh)/2));margin:22px auto 6px;max-width:420px;overflow:hidden}
 .bar i{display:block;height:100%;width:0;background:var(--g)}
 .time{display:flex;justify-content:space-between;max-width:420px;margin:0 auto;font-size:.8rem;color:var(--mut)}
 .play{width:68px;height:68px;padding:0;font-size:1.6rem;margin-top:18px}
 .modal{position:fixed;inset:0;background:#000b;display:flex;align-items:center;justify-content:center;padding:18px}
 .modal .box{max-width:440px;width:100%;margin:0}
+.rp{margin-left:14px}.rp .cm{background:color-mix(in srgb,var(--txt) 8%,var(--card))}.mini .cover{width:130px}.mini h1{font-size:1.5rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:4px 14px}input[type=color]{padding:2px;height:40px}input[type=range]{padding:0;accent-color:var(--g)}
+.pv{background:linear-gradient(var(--bg2),var(--bg) 200px) no-repeat var(--bg);color:var(--txt);font-family:var(--font);border-radius:var(--rbox);padding:18px}.pv .cover{width:150px;margin:0 auto}.pv .player{padding-top:0}
+html[data-spin="1"] body.playing .cover,.pv[data-spin="1"] .cover{animation:sp 8s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
 .err{color:var(--red)}[hidden]{display:none!important}
-@media(prefers-reduced-motion:reduce){button:hover{transform:none}}
+@media(prefers-reduced-motion:reduce){button:hover{transform:none}.cover{animation:none!important}}
 </style>
 </head>
 <body>
@@ -56,16 +60,69 @@ const pub = p => p ? sb.storage.from("media").getPublicUrl(p).data.publicUrl : "
 const fmt = s => isFinite(s) ? Math.floor(s/60) + ":" + String(Math.floor(s%60)).padStart(2,"0") : "0:00";
 const token = new URLSearchParams(location.search).get("l");
 
-token ? listener() : admin();
+
+/* ================= APARIENCIA ================= */
+const DEF = { bg:"#121212", bg2:"#2a2a2a", panel:"#181818", card:"#242424", txt:"#ffffff", mut:"#b3b3b3", g:"#1ed760", gt:"#000000", font:"sistema", rc:8, rb:999, rbox:10, barh:6, spin:false };
+const FONTS = { sistema:'"Segoe UI",system-ui,-apple-system,sans-serif', serif:'Georgia,"Times New Roman",serif', mono:'"Courier New",ui-monospace,monospace', redondeada:'"Trebuchet MS","Segoe UI",system-ui,sans-serif' };
+const PRESETS = {
+  "Spotify": {},
+  "Apple Music": { bg:"#ffffff", bg2:"#fde8ec", panel:"#f5f5f7", card:"#e8e8ed", txt:"#1d1d1f", mut:"#6e6e73", g:"#fa2d48", gt:"#ffffff", rc:6, rbox:12, barh:4 },
+  "YouTube Music": { bg:"#0f0f0f", bg2:"#3a1212", panel:"#1a1a1a", card:"#272727", mut:"#aaaaaa", g:"#ff0000", gt:"#ffffff", rc:2, rbox:8, barh:3 },
+  "SoundCloud": { bg:"#ffffff", bg2:"#ffe3d3", panel:"#f2f2f2", card:"#e3e3e3", txt:"#333333", mut:"#666666", g:"#ff5500", gt:"#ffffff", rc:0, rbox:4, rb:4, barh:4 },
+  "Deezer": { bg:"#13131a", bg2:"#2c1654", panel:"#1c1c26", card:"#2a2a38", mut:"#a9a9c0", g:"#a238ff", gt:"#ffffff", rc:6, rbox:12, barh:5 },
+  "iPod clásico": { bg:"#d8d9db", bg2:"#f3f3f4", panel:"#f7f7f8", card:"#c4c7cc", txt:"#1b1b1d", mut:"#5a5d63", g:"#3b82f6", gt:"#ffffff", font:"redondeada", rc:4, rbox:14, barh:10 },
+  "Walkman": { bg:"#2a2a2a", bg2:"#43290f", panel:"#353535", card:"#474747", txt:"#f4ead5", mut:"#b8ad96", g:"#ff8a00", gt:"#1a1100", font:"mono", rc:2, rbox:4, rb:4, barh:10 },
+  "Vinilo": { bg:"#1a110b", bg2:"#3b2415", panel:"#241811", card:"#33241a", txt:"#f3e6d3", mut:"#b59d82", g:"#d9a45b", gt:"#1a110b", font:"serif", rc:50, rbox:12, barh:4, spin:true },
+  "Game Boy": { bg:"#9bbc0f", bg2:"#8bac0f", panel:"#8bac0f", card:"#7d9e0e", txt:"#0f380f", mut:"#306230", g:"#0f380f", gt:"#9bbc0f", font:"mono", rc:0, rbox:0, rb:0, barh:10 },
+  "Neón": { bg:"#0d0221", bg2:"#3a0f6b", panel:"#170535", card:"#26104d", mut:"#b79cff", g:"#ff2bd6", gt:"#ffffff", rc:20, rbox:18, barh:6 }
+};
+const COLORS = [["bg","Fondo"],["bg2","Fondo superior"],["panel","Paneles"],["card","Campos y comentarios"],["txt","Texto"],["mut","Texto secundario"],["g","Color principal"],["gt","Texto de botones"]];
+const setTheme = (t, el = document.documentElement) => {
+  const v = { ...DEF, ...t }, set = (k, x) => el.style.setProperty("--" + k, x);
+  COLORS.forEach(([k]) => set(k, v[k]));
+  set("font", FONTS[v.font] || FONTS.sistema); set("rc", v.rc + "%"); set("rb", v.rb + "px"); set("rbox", v.rbox + "px"); set("barh", v.barh + "px");
+  el.dataset.spin = v.spin ? 1 : 0;
+};
+const EDITOR_HTML = `<details class="box"><summary style="cursor:pointer;font-weight:700">Apariencia para los oyentes</summary>
+  <p class="mut small">Elige un estilo o personalízalo. La vista previa muestra lo que verán los oyentes.</p>
+  <div class="row" style="gap:8px">${Object.keys(PRESETS).map(n => `<button type="button" class="sec sm" data-p="${n}">${n}</button>`).join("")}</div>
+  <div id="pv" class="pv" style="margin:16px 0"><div class="player"><div class="cover" style="background:linear-gradient(135deg,var(--g),var(--card))"></div>
+    <h1>Título de ejemplo</h1><p class="mut">Nombre del artista</p>
+    <div class="box" style="max-width:300px;margin:16px auto"><label style="margin-top:0;text-align:left">Tu nombre</label><input placeholder="¿Cómo te llamas?" disabled>
+    <p class="mut small" style="text-align:left">Solo podrás escuchar la canción una vez.</p><button type="button">Reproducir</button></div>
+    <div class="bar"><i style="width:40%"></i></div><div class="time"><span>1:20</span><span>3:05</span></div>
+    <div class="cm" style="max-width:300px;margin:14px auto;text-align:left"><b>Ana</b><div>¡Me ha encantado!</div></div></div></div>
+  <div class="grid">${COLORS.map(([k, n]) => `<div><label>${n}</label><input type="color" data-k="${k}"></div>`).join("")}</div>
+  <div class="grid">
+    <div><label>Forma de la portada (cuadrada a redonda)</label><input type="range" data-k="rc" data-n="1" min="0" max="50"></div>
+    <div><label>Redondeo de los paneles</label><input type="range" data-k="rbox" data-n="1" min="0" max="28"></div>
+    <div><label>Grosor de la barra</label><input type="range" data-k="barh" data-n="1" min="2" max="14"></div>
+    <div><label>Forma de los botones</label><select data-k="rb" data-n="1"><option value="0">Cuadrados</option><option value="8">Redondeados</option><option value="999">Píldora</option></select></div>
+    <div><label>Letra</label><select data-k="font"><option value="sistema">Moderna</option><option value="serif">Clásica</option><option value="mono">Retro (máquina)</option><option value="redondeada">Redondeada</option></select></div>
+    <div><label><input type="checkbox" data-k="spin" style="width:auto"> Portada giratoria mientras suena</label></div>
+  </div>
+  <p id="vm" class="small mut"></p><button id="sv" type="button">Guardar apariencia</button></details>`;
+async function editor() {
+  const { data } = await sb.from("settings").select("theme").eq("id", 1).maybeSingle();
+  let th = { ...DEF, ...(data && data.theme || {}) };
+  const refresh = () => { setTheme(th, $("#pv")); document.querySelectorAll("[data-k]").forEach(i => { const v = th[i.dataset.k]; i.type === "checkbox" ? i.checked = v : i.value = v; }); };
+  document.querySelectorAll("[data-k]").forEach(i => i.oninput = () => { th[i.dataset.k] = i.type === "checkbox" ? i.checked : i.dataset.n ? +i.value : i.value; setTheme(th, $("#pv")); });
+  document.querySelectorAll("[data-p]").forEach(b => b.onclick = () => { th = { ...DEF, ...PRESETS[b.dataset.p] }; refresh(); });
+  $("#sv").onclick = async () => { const { error } = await sb.from("settings").upsert({ id: 1, theme: th }); $("#vm").textContent = error ? "Error: " + error.message : "Apariencia guardada. Ya la ven los oyentes."; };
+  refresh();
+}
 
 /* ================= PÁGINA DEL OYENTE ================= */
+const thread = (l, p, btn) => l.filter(c => c.parent_id === p).map(c => `<div class="cm"><b>${esc(c.listener)}</b>${c.mine ? " (tú)" : ""} <span class="mut small">${new Date(c.created_at).toLocaleDateString("es")}</span><div>${esc(c.body)}</div><div style="margin-top:8px">${btn(c)}</div><div class="rp">${thread(l, c.id, btn)}</div></div>`).join("");
+const head = i => `<img class="cover" src="${esc(pub(i.cover))}" alt="" onerror="this.style.visibility='hidden'"><h1>${esc(i.title)}</h1><p class="mut">${esc(i.artist)}</p>`;
+
 async function listener() {
+  const { data: st } = await sb.from("settings").select("theme").eq("id", 1).maybeSingle();
+  if (st && st.theme) setTheme(st.theme);
   const { data: info } = await sb.rpc("link_info", { t: token });
   if (!info) return app.innerHTML = `<div class="player"><h1>Enlace no válido</h1><p class="mut">Comprueba que el enlace está completo.</p></div>`;
-  if (info.used) return app.innerHTML = `<div class="player"><h1>Este enlace ya se ha utilizado</h1><p class="mut">Cada enlace se puede escuchar una sola vez.</p></div>`;
-  app.innerHTML = `<div class="player">
-    <img class="cover" src="${esc(pub(info.cover))}" alt="" onerror="this.style.visibility='hidden'">
-    <h1>${esc(info.title)}</h1><p class="mut">${esc(info.artist)}</p>
+  if (info.used) return discussion(info, "Ya has escuchado esta canción: no se puede reproducir de nuevo.");
+  app.innerHTML = `<div class="player">${head(info)}
     <div id="start" class="box" style="max-width:420px;margin:24px auto">
       <label for="nm" style="margin-top:0;text-align:left">Tu nombre</label>
       <input id="nm" maxlength="60" placeholder="¿Cómo te llamas?">
@@ -87,26 +144,49 @@ async function listener() {
     const a = new Audio(pub(data.audio));
     a.ontimeupdate = () => { $("#fill").style.width = (a.currentTime / a.duration * 100 || 0) + "%"; $("#cur").textContent = fmt(a.currentTime); };
     a.onloadedmetadata = () => $("#dur").textContent = fmt(a.duration);
-    a.onplay = () => { $("#pp").textContent = "❚❚"; $("#pp").setAttribute("aria-label","Pausar"); };
-    a.onpause = () => { $("#pp").textContent = "▶"; $("#pp").setAttribute("aria-label","Reproducir"); };
+    a.onplay = () => { document.body.classList.add("playing"); $("#pp").textContent = "❚❚"; $("#pp").setAttribute("aria-label","Pausar"); };
+    a.onpause = () => { document.body.classList.remove("playing"); $("#pp").textContent = "▶"; $("#pp").setAttribute("aria-label","Reproducir"); };
     $("#pp").onclick = () => a.paused ? a.play() : a.pause();
-    a.onended = () => feedback();
+    a.onended = () => feedback(info);
     a.play().catch(() => { $("#pp").textContent = "▶"; });
   };
 }
-function feedback() {
+function feedback(info) {
   app.insertAdjacentHTML("beforeend", `<div class="modal" role="dialog" aria-modal="true"><div class="box">
     <h2 style="margin-top:0">¿Qué te ha parecido?</h2>
     <textarea id="cm" rows="4" maxlength="1000" placeholder="Escribe tu comentario sobre la canción"></textarea>
     <div class="row" style="margin-top:14px"><button id="send">Enviar comentario</button><button id="skip" class="sec">Ahora no</button></div></div></div>`);
-  const done = t => { $(".modal").remove(); app.innerHTML = `<div class="player"><h1>${t}</h1><p class="mut">Este enlace ya ha caducado. Puedes cerrar la página.</p></div>`; };
-  $("#skip").onclick = () => done("Gracias por escuchar");
+  $("#skip").onclick = () => { $(".modal").remove(); discussion(info); };
   $("#send").onclick = async () => {
-    const b = $("#cm").value.trim(); if (!b) return done("Gracias por escuchar");
-    $("#send").disabled = true;
-    await sb.rpc("add_comment", { t: token, b });
-    done("Gracias por tu comentario");
+    const b = $("#cm").value.trim(); $("#send").disabled = true;
+    if (b) await sb.rpc("add_comment", { t: token, b, p: null });
+    $(".modal").remove(); discussion(info);
   };
+}
+async function discussion(info, note = "Tu enlace ha caducado: la canción no se puede volver a reproducir.") {
+  app.innerHTML = `<div class="player mini">${head(info)}<p class="mut small">${note}</p></div>
+    <h2>Comentarios</h2><div id="th"></div>
+    <div class="box"><p id="rt" class="small mut" hidden></p>
+    <textarea id="cm" rows="3" maxlength="1000" placeholder="Escribe un comentario"></textarea>
+    <div style="margin-top:12px"><button id="send">Publicar</button></div></div>`;
+  let list = [], reply = null;
+  const draw = async () => {
+    const { data } = await sb.rpc("get_comments", { t: token }); list = data || [];
+    $("#th").innerHTML = thread(list, null, c => `<button class="sec sm" data-r="${c.id}">Responder</button>`) || `<p class="mut">Todavía no hay comentarios. Escribe el primero.</p>`;
+    document.querySelectorAll("[data-r]").forEach(b => b.onclick = () => {
+      reply = +b.dataset.r; $("#rt").hidden = false;
+      $("#rt").innerHTML = `Respondiendo a ${esc(list.find(x => x.id === reply).listener)} <button class="sm sec" id="x">Cancelar</button>`;
+      $("#x").onclick = () => { reply = null; $("#rt").hidden = true; };
+      $("#cm").focus();
+    });
+  };
+  $("#send").onclick = async () => {
+    const b = $("#cm").value.trim(); if (!b) return;
+    $("#send").disabled = true;
+    await sb.rpc("add_comment", { t: token, b, p: reply });
+    $("#cm").value = ""; reply = null; $("#rt").hidden = true; $("#send").disabled = false; draw();
+  };
+  draw(); setInterval(draw, 20000);
 }
 
 /* ================= PANEL DE ADMINISTRADOR ================= */
@@ -121,7 +201,7 @@ function login() {
   <p id="msg" class="err small"></p><button id="in">Entrar</button></div>`;
   $("#in").onclick = async () => {
     const { error } = await sb.auth.signInWithPassword({ email: $("#em").value.trim(), password: $("#pw").value });
-    error ? $("#msg").textContent = "Correo o contraseña incorrectos." : panel();
+    error ? $("#msg").textContent = "Error: " + error.message : panel();
   };
 }
 async function panel() {
@@ -133,9 +213,9 @@ async function panel() {
     <label for="co">Portada (imagen)</label><input id="co" type="file" accept="image/*">
     <label for="nl">Cuántos enlaces quieres crear</label><input id="nl" type="number" min="1" max="50" value="3">
     <p id="msg" class="small"></p><button id="mk">Crear canción y enlaces</button></div>
-  <div id="list"></div>`;
+  ${EDITOR_HTML}<div id="list"></div>`;
   $("#out").onclick = async () => { await sb.auth.signOut(); login(); };
-  $("#mk").onclick = create;
+  $("#mk").onclick = create; editor();
   load();
 }
 async function upload(file) {
@@ -165,19 +245,25 @@ async function load() {
     sb.from("links").select("*").order("created_at"),
     sb.from("comments").select("*").order("created_at")]);
   const base = location.origin + location.pathname;
-  $("#list").innerHTML = (tr || []).map(t => `<div class="box"><div class="track">
+  $("#list").innerHTML = (tr || []).map(t => {
+    const ls = (lk || []).filter(l => l.track_id === t.id), toks = new Set(ls.map(l => l.token)), tc = (cm || []).filter(c => toks.has(c.token));
+    return `<div class="box"><div class="track">
     ${t.cover_path ? `<img src="${esc(pub(t.cover_path))}" alt="">` : `<div class="ph"></div>`}
     <div><strong>${esc(t.title)}</strong><div class="mut">${esc(t.artist)}</div>
     <button class="sec sm" style="margin-top:10px" data-add="${t.id}">+ Añadir enlace</button></div></div>
-    ${(lk || []).filter(l => l.track_id === t.id).map(l => `<div><div class="link">
-      <span>${l.used_at ? `<span class="tag u">Usado por ${esc(l.listener)}</span>` : `<span class="tag">Disponible</span>`}</span>
-      <button class="sm sec" data-copy="${base}?l=${l.token}">Copiar enlace</button></div>
-      ${(cm || []).filter(c => c.token === l.token).map(c => `<div class="cm"><b>${esc(c.listener)}:</b> ${esc(c.body)}</div>`).join("")}</div>`).join("")}
-    </div>`).join("") || `<p class="mut">Aún no has subido ninguna canción.</p>`;
+    ${ls.map(l => `<div class="link"><span>${l.used_at ? `<span class="tag u">Usado por ${esc(l.listener)}</span>` : `<span class="tag">Disponible</span>`}</span>
+      <button class="sm sec" data-copy="${base}?l=${l.token}">Copiar enlace</button></div>`).join("")}
+    <h2 style="font-size:1rem">Comentarios (${tc.length})</h2>
+    ${thread(tc, null, c => `<button class="sm sec" data-del="${c.id}">Borrar</button>`) || `<p class="mut small">Sin comentarios todavía.</p>`}</div>`;
+  }).join("") || `<p class="mut">Aún no has subido ninguna canción.</p>`;
   document.querySelectorAll("[data-copy]").forEach(b => b.onclick = async () => {
     await navigator.clipboard.writeText(b.dataset.copy); b.textContent = "¡Copiado!"; setTimeout(() => b.textContent = "Copiar enlace", 1500); });
   document.querySelectorAll("[data-add]").forEach(b => b.onclick = async () => { await sb.from("links").insert({ track_id: b.dataset.add }); load(); });
+  document.querySelectorAll("[data-del]").forEach(b => b.onclick = async () => {
+    if (!confirm("¿Borrar este comentario y todas sus respuestas?")) return;
+    await sb.from("comments").delete().eq("id", b.dataset.del); load(); });
 }
+token ? listener() : admin();
 </script>
 </body>
 </html>
